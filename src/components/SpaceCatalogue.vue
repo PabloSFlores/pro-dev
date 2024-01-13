@@ -19,7 +19,7 @@ export default {
           to: { name: "rent-space" },
         },
         {
-          text: "Cátalogo de espacios",
+          text: "Catálogo de espacios",
           active: true,
         },
       ],

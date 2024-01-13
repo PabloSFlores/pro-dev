@@ -18,7 +18,7 @@ export default {
           to: { name: "rent-space" },
         },
         {
-          text: "Renta tu espacio",
+          text: "Información del espacio",
           to: { name: "space-info" },
         },
         {
