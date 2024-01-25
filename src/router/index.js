@@ -59,6 +59,11 @@ const routes = [
                 name: 'space-details',
                 component: () => import('../components/SpaceDetails.vue')
             },
+            {
+                path: '/form',
+                name: 'form',
+                component: () => import('../components/Form.vue')
+            },
         ],
     },
 ]

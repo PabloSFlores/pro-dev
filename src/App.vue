@@ -37,6 +37,9 @@
                 <b-nav-item>
                   <b-button block :to="{ name: 'about' }"> Opción 3 </b-button>
                 </b-nav-item>
+                <b-nav-item>
+                  <b-button block :to="{ name: 'form' }"> Formulario </b-button>
+                </b-nav-item>
               </b-nav>
             </b-sidebar>
           </b-col>
