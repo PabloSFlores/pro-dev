@@ -96,19 +96,19 @@
                     </b-form-invalid-feedback>
                 </b-form-group>
             </b-col>
-            <b-col cols="8" md="8" lg="6">
+            <b-col cols="12">
                 <b-form-group label="Seleccionar foto:">
                     <b-form-file no-drop placeholder="Seleccionar archivo" v-model="file" accept=".png"
                         @change="handleFileChange" :state="validate.photo" ref="fileInput"
                         :browse-text="'Buscar'"></b-form-file>
+                    <b-form-invalid-feedback>
+                        {{ errors.photo }}
+                    </b-form-invalid-feedback>
                 </b-form-group>
-                <b-form-invalid-feedback>
-                    {{ errors.photo }}
-                </b-form-invalid-feedback>
             </b-col>
-            <b-col cols="12" class="text-end mt-5">
-                <b-button class="me-3" type="reset" variant="danger">Limpiar</b-button>
-                <b-button type="submit" variant="success">Enviar</b-button>
+            <b-col cols="12" class="mt-5 d-flex flex-row-reverse">
+                <b-button class="ml-3" type="submit" variant="success">Enviar</b-button>
+                <b-button type="reset" variant="danger">Limpiar</b-button>
             </b-col>
         </b-row>
     </b-form>
@@ -158,12 +158,11 @@ export default Vue.extend({
                 // No se seleccionó ningún archivo
                 return;
             }
-            const file = files[0];
-            console.log(file);
-            this.validatePhoto(file);
+            this.file = files[0];
+            this.validatePhoto(this.file);
         },
         validatePhoto(file) {
-            const maxSizeInBytes = 3 * 1024 * 1024; 
+            const maxSizeInBytes = 3 * 1024 * 1024;
             const fileExtension = file.name.split(".").pop().toLowerCase();
             if (fileExtension != 'png') {
                 this.validate['photo'] = false;
@@ -175,13 +174,12 @@ export default Vue.extend({
                 this.clearFile()
             } else {
                 this.validate['photo'] = true;
-                this.errors['photo'] = ''
-                this.personData = this.file
+                this.errors['photo'] = '';
+                this.personData.photo = file.name;
             }
         },
         clearFile() {
             this.file = null;
-            this.$refs.fileInput.reset();
         },
         // Fecha de hace 18 años
         getMinDate() {
@@ -255,7 +253,7 @@ export default Vue.extend({
             if (field === 'phoneNumber' && this.validate['phoneNumber']) this.validateMaxLength(field, 10)
         },
         // disableSubmitButton() {
-        //     return Object.values(this.validate).includes(false) || Object.values(this.validate).includes(null);
+        //     return !this.mandatoryFields.some(field => this.validate[field]);
         // },
         onSubmit(event) {
             event.preventDefault()
