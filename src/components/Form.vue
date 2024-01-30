@@ -4,7 +4,7 @@
             <b-col cols="12" md="6" lg="4">
                 <b-form-group label="Nombre:" label-for="name">
                     <b-form-input id="name" v-model="personData.name" type="text" placeholder="Pablo Samuel"
-                        :state="validate.name" @input="validateField('name')" trim></b-form-input>
+                        :state="validate.name" @input="validateField('name')" trim maxlength="100"></b-form-input>
                     <b-form-invalid-feedback>
                         {{ errors.name }}
                     </b-form-invalid-feedback>
@@ -13,7 +13,7 @@
             <b-col cols="12" md="6" lg="4">
                 <b-form-group label="Apellido paterno:" label-for="surname">
                     <b-form-input id="surname" v-model="personData.surname" type="text" placeholder="Flores"
-                        :state="validate.surname" @input="validateField('surname')" trim></b-form-input>
+                        :state="validate.surname" @input="validateField('surname')" trim maxlength="100"></b-form-input>
                     <b-form-invalid-feedback>
                         {{ errors.surname }}
                     </b-form-invalid-feedback>
@@ -22,7 +22,7 @@
             <b-col cols="12" md="6" lg="4">
                 <b-form-group label="Apellido materno:" label-for="lastname">
                     <b-form-input id="lastname" v-model="personData.lastname" type="text" placeholder="Santana"
-                        :state="validate.lastname" @input="validateField('lastname')" trim></b-form-input>
+                        :state="validate.lastname" @input="validateField('lastname')" trim maxlength="100"></b-form-input>
                     <b-form-invalid-feedback>
                         {{ errors.lastname }}
                     </b-form-invalid-feedback>
@@ -41,7 +41,7 @@
             <b-col cols="12" md="9" lg="8">
                 <b-form-group label="Calle:" label-for="street">
                     <b-form-input id="street" v-model="personData.street" type="text" placeholder="Las rosas"
-                        :state="validate.street" @input="validateField('street')" trim></b-form-input>
+                        :state="validate.street" @input="validateField('street')" trim maxlength="100"></b-form-input>
                     <b-form-invalid-feedback>
                         {{ errors.street }}
                     </b-form-invalid-feedback>
@@ -60,7 +60,7 @@
             <b-col cols="12" md="9" lg="8">
                 <b-form-group label="Ciudad:" label-for="city">
                     <b-form-input id="city" v-model="personData.city" type="text" placeholder="Cuernavaca"
-                        :state="validate.city" @input="validateField('city')" trim></b-form-input>
+                        :state="validate.city" @input="validateField('city')" trim maxlength="100"></b-form-input>
                     <b-form-invalid-feedback>
                         {{ errors.city }}
                     </b-form-invalid-feedback>
@@ -80,7 +80,7 @@
             <b-col cols="12">
                 <b-form-group label="Correo electrónico:" label-for="email">
                     <b-form-input id="email" v-model="personData.email" type="text" placeholder="correo@gmail.com"
-                        :state="validate.email" @input="validateField('email')" trim></b-form-input>
+                        :state="validate.email" @input="validateField('email')" trim maxlength="100"></b-form-input>
                     <b-form-invalid-feedback>
                         {{ errors.email }}
                     </b-form-invalid-feedback>
@@ -107,7 +107,7 @@
                 </b-form-group>
             </b-col>
             <b-col cols="12" class="mt-5 d-flex flex-row-reverse">
-                <b-button class="ml-3" type="submit" variant="success">Enviar</b-button>
+                <b-button class="ml-3" type="submit" variant="success" :disabled="disableSubmitButton()">Enviar</b-button>
                 <b-button type="reset" variant="danger">Limpiar</b-button>
             </b-col>
         </b-row>
@@ -162,13 +162,13 @@ export default Vue.extend({
             this.validatePhoto(this.file);
         },
         validatePhoto(file) {
-            const maxSizeInBytes = 3 * 1024 * 1024;
+            const maxSize = 3 * 1024 * 1024;
             const fileExtension = file.name.split(".").pop().toLowerCase();
             if (fileExtension != 'png') {
                 this.validate['photo'] = false;
                 this.errors['photo'] = 'El archivo debe ser png'
                 this.clearFile()
-            } else if (file.size > maxSizeInBytes) {
+            } else if (file.size > maxSize) {
                 this.validate['photo'] = false;
                 this.errors['photo'] = 'Archivo demasiado grande'
                 this.clearFile()
@@ -236,8 +236,12 @@ export default Vue.extend({
             }
         },
         // https://stackoverflow.com/questions/56034027/how-to-limit-digit-number-in-vue-input
-        validateMaxLength(field, maxLength) {
-            if (String(this.personData[field]).length > maxLength) {
+        validateLength(field, minLength, maxLength) {
+
+            if (String(this.personData[field]).length < minLength) {
+                this.errors[field] = `Mínimo ${maxLength} carácteres`;
+                this.validate[field] = false
+            } else if (String(this.personData[field]).length > maxLength) {
                 this.errors[field] = `Máximo ${maxLength} carácteres`;
                 this.validate[field] = false
             } else {
@@ -249,12 +253,16 @@ export default Vue.extend({
             if (this.mandatoryFields.includes(field)) this.validateMandatoryField(field)
             if (this.optionalFields.includes(field)) this.validateOptionalField(field)
             if (field === 'email' && this.validate['email']) this.validateEmail(this.personData.email)
-            if (field === 'postalCode' && this.validate['postalCode']) this.validateMaxLength(field, 5)
-            if (field === 'phoneNumber' && this.validate['phoneNumber']) this.validateMaxLength(field, 10)
+            if (field === 'postalCode' && this.validate['postalCode']) this.validateLength(field, 5, 5)
+            if (field === 'phoneNumber' && this.validate['phoneNumber']) this.validateLength(field, 10, 10)
+            if (field === 'houseNumber' && this.validate['houseNumber']) this.validateLength(field, 1, 3)
         },
-        // disableSubmitButton() {
-        //     return !this.mandatoryFields.some(field => this.validate[field]);
-        // },
+        disableSubmitButton() {
+            for (const i in this.mandatoryFields) {
+                if (!this.validate[this.mandatoryFields[i]]) return true;
+            }
+            return false;
+        },
         onSubmit(event) {
             event.preventDefault()
             if (!Object.values(this.validate).includes(false)) {
